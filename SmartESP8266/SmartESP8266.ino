@@ -13,11 +13,16 @@ const unsigned long updateInterval = 500;
 
 //------- declaration des pins --------
 
+int salon = D1;
+
+
 void setup() {
   Serial.begin(115200);
   connectToWiFi(ssid, password);
   setupWebSocket(server, &lastCommand);
-  pinMode(D1, OUTPUT);
+
+
+  pinMode(salon, OUTPUT);
 }
 
 void loop() {
@@ -29,42 +34,49 @@ void loop() {
 
 
 
-   Smartcommande();
-   Autoupdate();
- 
+  Smartcommande();
+  Autoupdate();
 }
 
 
 
 
-  void Smartcommande(){
-  
+void Smartcommande() {
+
   if (!lastCommand.isEmpty()) {
-    if (lastCommand == "on") {
-      digitalWrite(D1, HIGH);
+
+    if (lastCommand == "led_on") {
+
+      digitalWrite(salon, HIGH);
       payload.bulb1 = "true";
-      payload.ia = "OK, j’ai allumé la LED";
-      payload.notif = "LED ON 💡";
-    } else if (lastCommand == "off") {
-      digitalWrite(D1, LOW);
+      Serial.println("salon est ok");
+
+
+    } else if (lastCommand == "led_off") {
+
+      digitalWrite(salon, LOW);
       payload.bulb1 = "false";
-      payload.ia = "LED éteinte";
-      payload.notif = "LED OFF ❌";
+      Serial.print("salon est off");
+
+
     } else {
-      payload.ia = "false";
-      payload.notif = "false";
+      // envoyer une notification
+      Serial.print("notification");
+      payload.notif = "okok la led recoi une commande  inconnue";
+      
     }
 
     lastCommand = "";
     sendAutoUpdate(payload);
-     payload.notif = "false";
-     payload.ia = "false";
-    
+    payload.notif="false";
   }
 }
-void Autoupdate(){
-   if (millis() - lastUpdateTime > updateInterval) {
-    payload.ecran1 = String(millis()); // mise à jour auto
+
+
+
+void Autoupdate() {
+  if (millis() - lastUpdateTime > updateInterval) {
+    payload.ecran1 = String(millis());  // mise à jour auto
     sendAutoUpdate(payload);
     lastUpdateTime = millis();
   }
